@@ -1,24 +1,24 @@
 pipeline {
+    agent any
 
-agent any 
- 
-  stages{
+    stages {
+        stage('Git Checkout') {
+            steps {
+                // Check out the source code from a Git repository
+                git branch: 'main', url: 'https://github.com/nahidkishore/cicd-nexus-sonarqube-argocd.git'
+            }
+        }
 
-         stage('Git chceckout'){
-
-           steps{
-                             git branch: 'main', url: 'https://github.com/PoudelAmrit123/ci-cd-pipeline.git'
-                }
-                             }
-        stage('Unit Test'){
-            steps{
+        stage('Unit Test') {
+            steps {
+                // Run unit tests using Maven
                 sh 'mvn test'
             }
         }
 
-        stage('Integrated testing'){
-
-            steps{
+        stage('Integrated Testing') {
+            steps {
+                // Run integrated tests using Maven, skipping unit tests
                 sh 'mvn verify -DskipUnitTests'
             }
         }
@@ -30,83 +30,59 @@ agent any
             }
         }
 
-        stage('Static Code Analysis'){
+        
 
-            steps{
-                script{
-                        withSonarQubeEnv(credentialsId: 'sonar-api') {
-                            sh 'mvn clean package sonar:sonar'
-                             }
-                     }
-            }
+
+        stage('Static Code Analysis') {
+      environment {
+        SONAR_URL = "http://54.145.35.111:9000"
+      }
+      steps {
+        withCredentials([string(credentialsId: 'sonarqube', variable: 'SONAR_AUTH_TOKEN')]) {
+          sh 'mvn sonar:sonar -Dsonar.login=$SONAR_AUTH_TOKEN -Dsonar.host.url=${SONAR_URL}'
         }
-
-      //  stage('Quality Gate status'){
-//      steps{
-
-         //       script{
-          //          waitForQualityGate abortPipeline: false, credentialsId: 'sonar-api'
-          //      }
-          //   }
-
-
-       // }
-
-       stage('Upload jar File To nexus'){
-
-         steps{
-            script{
-
-               def readPomVersion = readMavenPom file: 'pom.xml'
-
-                nexusArtifactUploader artifacts:
-                 [[artifactId: 'springboot', classifier: '', file: 'target/Uber.jar', type: 'jar']],
-                  credentialsId: 'nexus-auth', 
-                  groupId: 'com.example', 
-                  nexusUrl: '65.2.6.64:8081', 
-                  nexusVersion: 'nexus3', 
-                  protocol: 'http', 
-                  repository: 'demoapp-release', 
-                  version: "${readPomVersion.version}"
-            }
-
-         }
-
-       }
-
-   stage('Build Docker File'){
-
-     steps{
-
-        script{
-
-            sh 'docker image build -t  $JOB_NAME:v1.$BUILD_ID .'
-            sh 'docker image tag  $JOB_NAME:v1.$BUILD_ID  amritpoudel/$JOB_NAME:v1.$BUILD_ID'
-            sh 'docker image tag  $JOB_NAME:v1.$BUILD_ID   amritpoudel/$JOB_NAME:latest'
-        }
-     }
-
-   }
-
-   stage('Push To Docker hub'){
-
-  steps{
-
-    script{
-            withCredentials([string(credentialsId: 'docker-cred', variable: 'docker_hub_cred')]) {
-                sh 'docker login -u amritpoudel -p ${docker_hub_cred}'
-                sh 'docker image push amritpoudel/$JOB_NAME:v1.$BUILD_ID '
-                sh 'docker image push amritpoudel/$JOB_NAME:latest '
-    // some block
-                     }
-
+      }
     }
-  }
 
-   }
+    // nexus 
 
-
-  }
+    
 
 
+       stage('Upload Jar to Nexus') {
+    environment {
+        NEXUS_URL = 'http://100.25.166.83:8081' // Replace with your Nexus server URL
+    }
+    steps {
+        withCredentials([usernamePassword(credentialsId: 'nexus-auth', usernameVariable: 'NEXUS_USERNAME', passwordVariable: 'NEXUS_PASSWORD')]) {
+            script {
+                def readPomVersion = readMavenPom file: 'pom.xml'
+
+                def nexusArtifact = [
+                    artifactId: 'springboot',
+                    classifier: '',
+                    file: 'target/Uber.jar', // Replace with the actual path to your JAR file
+                    type: 'jar'
+                ]
+
+                def nexusUpload = nexusArtifactUploader(
+                    artifacts: [nexusArtifact],
+                    credentialsId: 'nexus-auth',
+                    groupId: 'com.example',
+                    nexusUrl: "${NEXUS_URL}",
+                    nexusVersion: 'nexus3',
+                    protocol: 'http',
+                    repository: 'demoapp-release',
+                    version: "${readPomVersion.version}"
+                )
+
+                nexusUpload.setNexusAuth(NEXUS_USERNAME, NEXUS_PASSWORD)
+                nexusUpload.perform()
+            }
+        }
+    }
+}
+
+// 
+    }
 }
