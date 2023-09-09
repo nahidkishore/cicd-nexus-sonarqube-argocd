@@ -7,7 +7,7 @@ agent any
          stage('Git chceckout'){
 
            steps{
-                             git branch: 'main', url: 'https://github.com/PoudelAmrit123/ci-cd-pipeline.git'
+                             git branch: 'main', url: 'https://github.com/nahidkishore/cicd-nexus-sonarqube-argocd.git'
                 }
                              }
         stage('Unit Test'){
