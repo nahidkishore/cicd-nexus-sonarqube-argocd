@@ -35,7 +35,7 @@ pipeline {
 
         stage('Static Code Analysis') {
       environment {
-        SONAR_URL = "http://54.145.35.111:9000"
+        SONAR_URL = "http://34.202.231.69:9000"
       }
       steps {
         withCredentials([string(credentialsId: 'sonarqube', variable: 'SONAR_AUTH_TOKEN')]) {
@@ -49,27 +49,27 @@ pipeline {
     
 
 
-      stage('Upload jar File To nexus'){
+      // stage('Upload jar File To nexus'){
 
-         steps{
-            script{
+      //    steps{
+      //       script{
 
-               def readPomVersion = readMavenPom file: 'pom.xml'
+      //          def readPomVersion = readMavenPom file: 'pom.xml'
 
-                nexusArtifactUploader artifacts:
-                 [[artifactId: 'springboot', classifier: '', file: 'target/Uber.jar', type: 'jar']],
-                  credentialsId: 'nexus-auth', 
-                  groupId: 'com.example', 
-                  nexusUrl: '100.25.166.83:8081', 
-                  nexusVersion: 'nexus3', 
-                  protocol: 'http', 
-                  repository: 'demoapp-release', 
-                  version: "${readPomVersion.version}"
-            }
+      //           nexusArtifactUploader artifacts:
+      //            [[artifactId: 'springboot', classifier: '', file: 'target/Uber.jar', type: 'jar']],
+      //             credentialsId: 'nexus-auth', 
+      //             groupId: 'com.example', 
+      //             nexusUrl: '100.25.166.83:8081', 
+      //             nexusVersion: 'nexus3', 
+      //             protocol: 'http', 
+      //             repository: 'demoapp-release', 
+      //             version: "${readPomVersion.version}"
+      //       }
 
-         }
+      //    }
 
-       }
+      //  }
 
 // 
     }
