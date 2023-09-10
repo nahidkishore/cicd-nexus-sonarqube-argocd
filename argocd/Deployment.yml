@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: mynodejs-app
-        image: amritpoudel/demo-app:latest
+        image: nahid0002/cicd-nexus-sonarqube:latest
         resources:
           limits:
             memory: "128Mi"
