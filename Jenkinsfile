@@ -49,40 +49,25 @@ pipeline {
     
 
 
-      stage('Upload Jar to Nexus') {
-        environment {
-            NEXUS_URL = 'http://54.83.103.209:8081/repository/demoapp-release' // Replace with your Nexus server URL
-        }
-        steps {
-            withCredentials([usernamePassword(credentialsId: 'nexus-auth', usernameVariable: 'NEXUS_USERNAME', passwordVariable: 'NEXUS_PASSWORD')]) {
-                script {
-                    def pom = readMavenPom file: 'pom.xml'
-                    def version = pom.version
+      stage('Upload Jar to Nexus'){
+    steps{
+        script{
+            def readPomVersion = readMavenPom file: 'pom.xml'
 
-                    def nexusArtifact = [
-                        artifactId: 'springboot',
-                        classifier: '',
-                        file: 'target/Uber.jar', // Replace with the actual path to your JAR file
-                        type: 'jar'
-                    ]
-
-                    def nexusUpload = nexusArtifactUploader(
-                        artifacts: [nexusArtifact],
-                        credentialsId: 'nexus-auth', // Ensure this matches your Jenkins credentials ID
-                        groupId: 'com.example',
-                        nexusUrl: "${NEXUS_URL}",
-                        nexusVersion: 'nexus3',
-                        protocol: 'http',
-                        repository: 'demoapp-release',
-                        version: version
-                    )
-
-                    nexusUpload.setNexusAuth(NEXUS_USERNAME, NEXUS_PASSWORD)
-                    nexusUpload.perform()
-                }
-            }
+            nexusArtifactUploader artifacts: [
+                [artifactId: 'springboot', classifier: '', file: 'target/Uber.jar', type: 'jar']
+            ],
+            credentialsId: 'nexus-auth', 
+            groupId: 'com.example', 
+            nexusUrl: 'http://54.83.103.209:8081/repository/demoapp-release', // Corrected URL
+            nexusVersion: 'nexus3', 
+            protocol: 'http', 
+            repository: 'demoapp-release', 
+            version: "${readPomVersion.version}"
         }
     }
+}
+
 
 // 
     }
