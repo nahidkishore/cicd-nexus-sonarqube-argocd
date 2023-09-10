@@ -51,7 +51,7 @@ pipeline {
 
       stage('Upload Jar to Nexus') {
         environment {
-            NEXUS_URL = 'http://54.83.103.209:8081' // Replace with your Nexus server URL
+            NEXUS_URL = 'http://54.83.103.209:8081/repository/demoapp-release' // Replace with your Nexus server URL
         }
         steps {
             withCredentials([usernamePassword(credentialsId: 'nexus-auth', usernameVariable: 'NEXUS_USERNAME', passwordVariable: 'NEXUS_PASSWORD')]) {
