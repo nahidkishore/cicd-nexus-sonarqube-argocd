@@ -49,28 +49,27 @@ pipeline {
     
 
 
-      // stage('Upload jar File To nexus'){
+       stage('Upload jar File To nexus'){
 
-      //    steps{
-      //       script{
+         steps{
+            script{
 
-      //          def readPomVersion = readMavenPom file: 'pom.xml'
+               def readPomVersion = readMavenPom file: 'pom.xml'
 
-      //           nexusArtifactUploader artifacts:
-      //            [[artifactId: 'springboot', classifier: '', file: 'target/Uber.jar', type: 'jar']],
-      //             credentialsId: 'nexus-auth', 
-      //             groupId: 'com.example', 
-      //             nexusUrl: '100.25.166.83:8081', 
-      //             nexusVersion: 'nexus3', 
-      //             protocol: 'http', 
-      //             repository: 'demoapp-release', 
-      //             version: "${readPomVersion.version}"
-      //       }
+                nexusArtifactUploader artifacts:
+                 [[artifactId: 'springboot', classifier: '', file: 'target/Uber.jar', type: 'jar']],
+                  credentialsId: 'nexus-auth', 
+                  groupId: 'com.example', 
+                  nexusUrl: '54.83.103.209:8081', 
+                  nexusVersion: 'nexus3', 
+                  protocol: 'http', 
+                  repository: 'demoapp-release', 
+                  version: "${readPomVersion.version}"
+            }
 
-      //    }
+         }
 
-      //  }
-
+       }
 // 
     }
 }
