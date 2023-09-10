@@ -67,8 +67,42 @@ pipeline {
         }
     }
 }
+//
 
+        stage('Build Docker File'){
+
+     steps{
+
+        script{
+
+            sh 'docker image build -t  $JOB_NAME:v1.$BUILD_ID .'
+            sh 'docker image tag  $JOB_NAME:v1.$BUILD_ID  nahid0002/$JOB_NAME:v1.$BUILD_ID'
+            sh 'docker image tag  $JOB_NAME:v1.$BUILD_ID   nahid0002/$JOB_NAME:latest'
+        }
+     }
+
+   }
 
 // 
+
+        stage('Push To Docker hub'){
+
+  steps{
+
+    script{
+            withCredentials([string(credentialsId: 'docker-cred', variable: 'docker_hub_cred')]) {
+                sh 'docker login -u nahid0002 -p ${docker_hub_cred}'
+                sh 'docker image push nahid0002/$JOB_NAME:v1.$BUILD_ID '
+                sh 'docker image push nahid0002/$JOB_NAME:latest '
+    // some block
+                     }
+
+    }
+  }
+
+   }
+
+        //
+        
     }
 }
