@@ -73,38 +73,45 @@ pipeline {
 
         // updated
 
-        stage('Upload Jar to Nexus') {
-    environment {
-        NEXUS_URL = 'http://54.83.103.209:8081' // Replace with your Nexus server URL
-    }
-    steps {
-        withCredentials([usernamePassword(credentialsId: 'nexus-auth', usernameVariable: 'NEXUS_USERNAME', passwordVariable: 'NEXUS_PASSWORD')]) {
-            script {
-                def readPomVersion = readMavenPom file: 'pom.xml'
+       pipeline {
+    // ...
 
-                def nexusArtifact = [
-                    artifactId: 'springboot',
-                    classifier: '',
-                    file: 'target/Uber.jar', // Replace with the actual path to your JAR file
-                    type: 'jar'
-                ]
+    stage('Upload Jar to Nexus') {
+        environment {
+            NEXUS_URL = 'http://54.83.103.209:8081' // Replace with your Nexus server URL
+        }
+        steps {
+            withCredentials([usernamePassword(credentialsId: 'nexus-auth', usernameVariable: 'NEXUS_USERNAME', passwordVariable: 'NEXUS_PASSWORD')]) {
+                script {
+                    def pom = readMavenPom file: 'pom.xml'
+                    def version = pom.version
 
-                def nexusUpload = nexusArtifactUploader(
-                    artifacts: [nexusArtifact],
-                    credentialsId: 'nexus-auth', // Ensure this matches your Jenkins credentials ID
-                    groupId: 'com.example',
-                    nexusUrl: "${NEXUS_URL}",
-                    nexusVersion: 'nexus3',
-                    protocol: 'http',
-                    repository: 'demoapp-release',
-                    version: "${readPomVersion.version}"
-                )
+                    def nexusArtifact = [
+                        artifactId: 'springboot',
+                        classifier: '',
+                        file: 'target/Uber.jar', // Replace with the actual path to your JAR file
+                        type: 'jar'
+                    ]
 
-                nexusUpload.setNexusAuth(NEXUS_USERNAME, NEXUS_PASSWORD)
-                nexusUpload.perform()
+                    def nexusUpload = nexusArtifactUploader(
+                        artifacts: [nexusArtifact],
+                        credentialsId: 'nexus-auth', // Ensure this matches your Jenkins credentials ID
+                        groupId: 'com.example',
+                        nexusUrl: "${NEXUS_URL}",
+                        nexusVersion: 'nexus3',
+                        protocol: 'http',
+                        repository: 'demoapp-release',
+                        version: version
+                    )
+
+                    nexusUpload.setNexusAuth(NEXUS_USERNAME, NEXUS_PASSWORD)
+                    nexusUpload.perform()
+                }
             }
         }
     }
+
+    // ...
 }
 
         //ending
