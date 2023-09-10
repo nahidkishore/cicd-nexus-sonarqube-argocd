@@ -59,7 +59,7 @@ pipeline {
             ],
             credentialsId: 'nexus-auth', 
             groupId: 'com.example', 
-            nexusUrl: 'http://54.83.103.209:8081/repository/demoapp-release', // Corrected URL
+            nexusUrl: 'http://54.83.103.209:8081/repository/demoapp-release/', // Corrected URL
             nexusVersion: 'nexus3', 
             protocol: 'http', 
             repository: 'demoapp-release', 
